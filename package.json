@@ -24,7 +24,6 @@
         "cli",
         "tool"
     ],
-    "type": "module",
     "author": "Francisco Nascimento <d19sp.developer@gmail.com>",
     "license": "MIT",
     "dependencies": {

@@ -49,6 +49,6 @@ describe('AutoSquash', () => {
     await squash.run();
 
     expect(mockGit.reset).toHaveBeenCalledWith(['--soft', 'abc456']);
-    expect(mockGit.commit).toHaveBeenCalledWith('feat: squash');
+    expect(mockGit.commit).toHaveBeenCalledWith(["feat: squash"]);
   });
 });
