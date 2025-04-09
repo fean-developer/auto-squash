@@ -1,38 +1,53 @@
 # auto-squash
 
+🖥️ Script de linha de comando para fazer squash automático de commits no Git.
+
 🚀 Uma CLI em TypeScript para fazer squash automático de commits desde o ponto em que sua branch divergiu da `main` (ou outra base).
 
-## Instalação
+
+### 📌 O que ele faz?
+
+Este script facilita o processo de squash de commits consecutivos em uma única linha de comando. Ele:
+
+- Identifica automaticamente os commits feitos desde uma branch base (como `main`);
+- Permite limitar a quantidade de commits a serem unificados;
+- Suporta o modo forçado para ignorar a branch base e unificar os últimos `n` commits;
+- Realiza `git reset --soft` até o commit base e cria um novo commit com a mensagem informada.
+
+Ideal para manter o histórico de commits limpo antes de fazer merge de branches.
+
+### 📦 Instalação
 
 ```bash
-npm install -g ./ # ou npm link dentro do repositório clonado
+npm install -g @fean-developer/auto-squash
 ```
 
-## Uso
+### 🚀 Uso
 
 ```bash
-auto-squash
+auto-squash -c <quantidade> -m "<mensagem do commit>"
 ```
 
-### Opções
+#### Parâmetros disponíveis:
 
-- `-b, --base <branch>`: Define a branch base (padrão: `main`)
-- `-m, --message <mensagem>`: Define a mensagem do commit após o squash
-- `-c, --count <n>`: Squasha apenas os últimos `n` commits (em vez de todos desde a base)
+| Parâmetro           | Descrição                                                                 |
+|---------------------|---------------------------------------------------------------------------|
+| `-b, --base`        | Nome da branch base (padrão: `main`)                                      |
+| `-m, --message`     | Mensagem do commit squash (padrão: `feat: squash automático`)             |
+| `-c, --count`       | Quantidade de commits a fazer squash (ex: 4)                              |
+| `--force`           | Força o squash dos últimos commits ignorando a base                       |
 
-### Exemplo:
+### 💡 Exemplos
 
-```bash
-auto-squash -b develop -m "feat: final squash da feature"
-auto-squash -c 3 -m "squash dos últimos 3 commits"
-```
+- Squash dos commits desde a branch `main`:
+  ```bash
+  auto-squash -c 3 -m "feat: compactando 3 commits"
+  ```
 
-## O que ele faz?
-
-1. Detecta o commit base comum entre a branch atual e a branch informada (`main`, por padrão).
-2. Verifica todos os commits desde esse ponto.
-3. Se houver mais de 1 commit, faz um `git reset --soft` até esse ponto.
-4. Cria um novo commit unificando todos.
+- Squash dos últimos 4 commits, ignorando a base:
+  ```bash
+  auto-squash -c 4 -m "feat: juntando 4 commits" --force
+  ```
 
 ---
 
