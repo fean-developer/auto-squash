@@ -106,7 +106,7 @@ jobs:
       - name: Publishing release tag
         env:
           NEW_TAG: ${{ steps.create_release_tag.outputs.NEW_TAG }}
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🔢 Criando tag: $NEW_TAG"
           git tag "$NEW_TAG"
