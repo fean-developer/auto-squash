@@ -21,9 +21,19 @@ export class AutoSquash {
           return;
         }
   
-        console.log(`Fazendo squash dos últimos ${commits.length} commits...`);
+        const totalCommits = commits.length;
+        let commitsToSquash = commits;
   
-        await this.git.reset(['--soft', mergeBaseHash]);
+        if (this.options.count && this.options.count < totalCommits) {
+          commitsToSquash = commits.slice(-this.options.count);
+          console.log(`Fazendo squash dos últimos ${commitsToSquash.length} commits.`);
+        } else {
+          console.log(`Fazendo squash de todos os ${totalCommits} commits desde a base ${this.options.baseBranch}.`);
+        }
+  
+        const newBaseHash = (await this.git.raw(['rev-parse', `${commitsToSquash[0]}^`])).trim();
+  
+        await this.git.reset(['--soft', newBaseHash]);
         await this.git.commit(this.options.commitMessage);
   
         console.log('✅ Squash concluído com sucesso!');
