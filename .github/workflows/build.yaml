@@ -1,0 +1,127 @@
+name: Build and Lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ✨ Build, Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 🔵 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📆 Instalar dependências
+        run: npm ci
+
+      - name: 🛠️ Compilar TypeScript
+        run: npm run build
+
+      - name: 🔎 Lint nos arquivos
+        run: |
+          npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+          npx eslint src --ext .ts
+
+      # Adicione testes aqui se quiser, exemplo:
+      # - name: ✅ Rodar testes
+      #   run: npm test
+
+      - name: 📋 Verificar dist/
+        run: ls -l dist
+
+
+      - name: Getting organization name
+        id: get_org_name
+        run: |
+          ORG_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          echo "ORG_NAME=$ORG_NAME" >> $GITHUB_OUTPUT
+
+
+      - name: Get the latest tag
+        id: get_latest_tag
+        run: |
+          git fetch --tags
+          LAST_TAG=$(git tag --list "v[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n 1)
+          if [ -z "$LAST_TAG" ]; then LAST_TAG="v1.0.0"; fi
+          echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+          
+
+      - name: Analisys type of commit
+        id: analisys_commit
+        run: |
+          LAST_TAG=${{ steps.get_latest_tag.outputs.last_tag }}
+          if [ -z "$LAST_TAG" ]; then LAST_TAG="v1.0.0"; fi
+
+          COMMITS=$(git log -3 --pretty=format:"%B")
+
+          if echo "$COMMITS" | grep -Eiq "^BREAKING CHANGE"; then
+          BUMP="major"
+          elif echo "$COMMITS" | grep -Eiq "^feat(\([a-zA-Z0-9_-]+\))?:"; then
+            BUMP="minor"
+          elif echo "$COMMITS" | grep -Eiq "^fix(\([a-zA-Z0-9_-]+\))?:|^refactor(\([a-zA-Z0-9_-]+\))?:"; then
+            BUMP="patch"
+          else
+            BUMP="patch"
+          fi
+          echo "BUMP=$BUMP" >> $GITHUB_OUTPUT
+
+      - name: Creating release tag
+        id: create_release_tag
+        env:
+          BUMP: ${{ steps.analisys_commit.outputs.BUMP }}
+        run: |
+          LAST_TAG=${{ steps.get_latest_tag.outputs.last_tag }}
+          if [ -z "$LAST_TAG" ]; then LAST_TAG="v1.0.0"; fi
+
+          # Extrai versões major, minor e patch
+          MAJOR=$(echo "$LAST_TAG" | cut -d. -f1 | sed 's/^v//')
+          MINOR=$(echo "$LAST_TAG" | cut -d. -f2)
+          PATCH=$(echo "$LAST_TAG" | cut -d. -f3)
+
+          # Incrementa a versão de acordo com o tipo de commit
+          if [ "$BUMP" = "major" ]; then
+            MAJOR=v$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "$BUMP" == "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_TAG="v$MAJOR.$MINOR.$PATCH"
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Publishing release tag
+        env:
+          NEW_TAG: ${{ steps.create_release_tag.outputs.NEW_TAG }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          echo "🔢 Criando tag: $NEW_TAG"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+
+          echo "🔢 Criando release para a tag: $NEW_TAG"
+          gh release create "$NEW_TAG" --generate-notes --title "Release $NEW_TAG"
+
+          # Criando tag MAJOR (ex: v1 -> v1.0.0)
+          MAJOR=$(echo "$NEW_TAG" | cut -d. -f1)
+          echo "🔢 Atualizando tag major: $MAJOR"
+
+          if git rev-parse "refs/tags/$MAJOR" >/dev/null 2>&1; then
+            git tag -d "$MAJOR"  # Remove a tag localmente
+          fi
+
+          git tag "$MAJOR" "$NEW_TAG"
+          git push --tags -f
