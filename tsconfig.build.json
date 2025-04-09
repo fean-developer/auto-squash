@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "target": "ES2020",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "strict": true,
+      "skipLibCheck": true,
+      "resolveJsonModule": true,
+      "declaration": true
+    },
+    "include": ["src"],
+    "extends": "./tsconfig.json",
+    "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/__tests__/**"]
+  }

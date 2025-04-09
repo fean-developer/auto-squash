@@ -30,13 +30,14 @@ jobs:
           npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
           npx eslint src --ext .ts
 
-      # Adicione testes aqui se quiser, exemplo:
-      # - name: ✅ Rodar testes
-      #   run: npm test
+      - name: ✅ Rodar testes
+        run: npm run test
+
+      - name: Rodar Coverage
+        run: npm run coverage
 
       - name: 📋 Verificar dist/
         run: ls -l dist
-
 
       - name: Getting organization name
         id: get_org_name

@@ -10,10 +10,13 @@
         "access": "public"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -p tsconfig.build.json",
         "start": "node dist/index.js",
         "lint": "eslint src --ext .ts",
-        "format": "prettier --write \"src/**/*.ts\""
+        "format": "prettier --write \"src/**/*.ts\"",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage"
     },
     "keywords": [
         "git",
@@ -21,6 +24,7 @@
         "cli",
         "tool"
     ],
+    "type": "module",
     "author": "Francisco Nascimento <d19sp.developer@gmail.com>",
     "license": "MIT",
     "dependencies": {
@@ -28,11 +32,15 @@
         "simple-git": "^3.27.0"
     },
     "devDependencies": {
+        "@types/jest": "^29.5.14",
         "@types/node": "^22.14.0",
         "@typescript-eslint/eslint-plugin": "^8.29.1",
         "@typescript-eslint/parser": "^8.29.1",
         "eslint": "^9.24.0",
         "eslint-config-prettier": "^10.1.1",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.3.1",
+        "ts-node": "^10.9.2",
         "typescript": "^5.8.3"
     }
 }
