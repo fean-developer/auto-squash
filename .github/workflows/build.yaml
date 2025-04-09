@@ -34,7 +34,7 @@ jobs:
         run: npm run test
 
       - name: Rodar Coverage
-        run: npm run coverage
+        run: npm run test:coverage
 
       - name: 📋 Verificar dist/
         run: ls -l dist
