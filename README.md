@@ -1,9 +1,9 @@
-# auto-squash
+[![npm](https://img.shields.io/npm/v/@fean-developer/auto-squash?color=blue)](https://www.npmjs.com/package/@fean-developer/auto-squash)
+![license](https://img.shields.io/npm/l/@fean-developer/auto-squash)
+![downloads](https://img.shields.io/npm/dt/@fean-developer/auto-squash)
+## 🧪 Auto Squash
 
-🖥️ Script de linha de comando para fazer squash automático de commits no Git.
-
-🚀 Uma CLI em TypeScript para fazer squash automático de commits desde o ponto em que sua branch divergiu da `main` (ou outra base).
-
+Script de linha de comando para fazer squash automático de commits no Git.
 
 ### 📌 O que ele faz?
 
@@ -49,7 +49,7 @@ auto-squash -c <quantidade> -m "<mensagem do commit>"
   auto-squash -c 4 -m "feat: juntando 4 commits" --force
   ```
 
----
+Contribuições são bem-vindas! Abra uma issue ou PR caso tenha ideias ou melhorias. 💬
 
 > ⚠️ Lembre-se: o histórico local será reescrito. Use com cautela se sua branch já foi compartilhada.
 
