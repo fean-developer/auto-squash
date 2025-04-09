@@ -110,6 +110,9 @@ jobs:
         run: |
           echo "🔢 Criando tag: $NEW_TAG"
           git tag "$NEW_TAG"
+
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          
           git push origin "$NEW_TAG"
 
           echo "🔢 Criando release para a tag: $NEW_TAG"
