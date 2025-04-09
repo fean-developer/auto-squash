@@ -6,6 +6,9 @@
     "bin": {
         "auto-squash": "dist/index.js"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "tsc",
         "start": "node dist/index.js",
