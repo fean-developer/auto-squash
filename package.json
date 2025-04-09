@@ -22,7 +22,10 @@
         "git",
         "squash",
         "cli",
-        "tool"
+        "commit",
+        "auto",
+        "history",
+        "git tools"
     ],
     "author": "Francisco Nascimento <d19sp.developer@gmail.com>",
     "license": "MIT",
