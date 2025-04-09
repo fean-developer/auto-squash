@@ -1,6 +1,6 @@
 {
     "name": "@fean-developer/auto-squash",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "CLI para squash automático de commits desde a base comum com main",
     "main": "dist/index.js",
     "bin": {
@@ -22,7 +22,10 @@
         "git",
         "squash",
         "cli",
-        "tool"
+        "commit",
+        "auto",
+        "history",
+        "git tools"
     ],
     "author": "Francisco Nascimento <d19sp.developer@gmail.com>",
     "license": "MIT",
