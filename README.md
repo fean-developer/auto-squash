@@ -9,7 +9,7 @@ Script de linha de comando para fazer squash automático de commits no Git.
 
 Este script facilita o processo de squash de commits consecutivos em uma única linha de comando. Ele:
 
-- Identifica automaticamente os commits feitos desde uma branch base (como `main`);
+- Identifica automaticamente os commits feitos desde uma branch default;
 - Permite limitar a quantidade de commits a serem unificados;
 - Suporta o modo forçado para ignorar a branch base e unificar os últimos `n` commits;
 - Realiza `git reset --soft` até o commit base e cria um novo commit com a mensagem informada.
@@ -32,16 +32,15 @@ auto-squash -c <quantidade> -m "<mensagem do commit>"
 
 | Parâmetro           | Descrição                                                                 |
 |---------------------|---------------------------------------------------------------------------|
-| `-b, --base`        | Nome da branch base (padrão: `main`)                                      |
 | `-m, --message`     | Mensagem do commit squash (padrão: `feat: squash automático`)             |
 | `-c, --count`       | Quantidade de commits a fazer squash (ex: 4)                              |
 | `--force`           | Força o squash dos últimos commits ignorando a base                       |
 
 ### 💡 Exemplos
 
-- Squash dos commits desde a branch `main`:
+- Squash dos commits desde a branch `default`:
   ```bash
-  auto-squash -c 3 -m "feat: compactando 3 commits"
+  auto-squash -m "feat: compactando todos commits"
   ```
 
 - Squash dos últimos 4 commits, ignorando a base:

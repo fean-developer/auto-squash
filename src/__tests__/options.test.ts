@@ -15,7 +15,6 @@ jest.mock('commander', () => {
       }),
       parse: jest.fn(),
       opts: jest.fn().mockImplementation(() => ({
-        baseBranch: 'main',
         commitMessage: 'feat: squash automático',
         count: undefined,
         force: false,
@@ -40,21 +39,21 @@ describe('Parâmetros da CLI', () => {
     process.argv = ['node', 'auto-squash'];
     const opts = parseOptions();
 
-    expect(opts.baseBranch).toBe('main');
+
     expect(opts.commitMessage).toBe('feat: squash automático');
     expect(opts.count).toBeUndefined();
     expect(opts.force).toBe(false);
   });
 
   it('deve aceitar valores customizados', () => {
-    process.argv = ['node', 'auto-squash', '--base-branch', 'develop', '--commit-message', 'custom msg', '--count', '5', '--force'];
+    process.argv = ['node', 'auto-squash', '--commit-message', 'custom msg', '--count', '5', '--force'];
     const opts = parseOptions();
 
-    opts.baseBranch = process.argv[3];
-    opts.commitMessage = process.argv[5];
-    opts.count = Number(process.argv[7]);
-    opts.force = process.argv[8] === '--force';
-    expect(opts.baseBranch).toBe('develop');
+ 
+    opts.commitMessage = process.argv[3];
+    opts.count = Number(process.argv[5]);
+    opts.force = process.argv[6] === '--force';
+   
     expect(opts.commitMessage).toBe('custom msg');
     expect(opts.count).toBe(5);
     expect(opts.force).toBe(true);
@@ -68,13 +67,6 @@ describe('Parâmetros da CLI', () => {
     expect(opts.count).toBe(10);
   });
 
-  it('deve interpretar corretamente o parâmetro --base-branch', () => {
-    process.argv = ['node', 'auto-squash', '--base-branch', 'release'];
-    const opts = parseOptions();
-    opts.baseBranch = process.argv[3];
-
-    expect(opts.baseBranch).toBe('release');
-  });
 
   it('deve utilizar o valor default para --force como false', () => {
     process.argv = ['node', 'auto-squash'];
@@ -93,7 +85,7 @@ describe('Parâmetros da CLI', () => {
   });
 
   it('deve lançar erro para valores inválidos em --count', () => {
-    process.argv = ['node', 'auto-squash', '--count', 'invalid', '--base-branch', 'main'];
+    process.argv = ['node', 'auto-squash', '--count', 'invalid'];
     const parseOptions = () => {
       try {
         return parseOptions();
@@ -122,21 +114,21 @@ describe('Parâmetros da CLI', () => {
     process.argv = ['node', 'auto-squash'];
     const opts = parseOptions();
 
-    expect(opts.baseBranch).toBe('main');
+    
     expect(opts.commitMessage).toBe('feat: squash automático');
     expect(opts.count).toBeUndefined();
     expect(opts.force).toBe(false);
   });
 
   it('deve aceitar valores customizados', () => {
-    process.argv = ['node', 'auto-squash', '--base', 'develop', '--message', 'custom msg', '--count', '5', '--force'];
+    process.argv = ['node', 'auto-squash',  'develop', '--message', 'custom msg', '--count', '5', '--force'];
     const opts = parseOptions();
 
-    opts.baseBranch = process.argv[3];
-    opts.commitMessage = process.argv[5];
-    opts.count = Number(process.argv[7]);
-    opts.force = process.argv[8] === '--force';
-    expect(opts.baseBranch).toEqual('develop');
+    
+    opts.commitMessage = process.argv[4];
+    opts.count = Number(process.argv[6]);
+    opts.force = process.argv[7] === '--force';
+  
     expect(opts.commitMessage).toBe('custom msg');
     expect(opts.count).toBe(5);
     expect(opts.force).toBe(true);
@@ -151,12 +143,6 @@ describe('Parâmetros da CLI', () => {
     expect(opts.count).toEqual(10);
   });
 
-  it('deve interpretar corretamente o parâmetro --base', () => {
-    process.argv = ['node', 'auto-squash', '--base', 'main'];
-    const opts = parseOptions();
-
-    expect(opts.baseBranch).toBe('main');
-  });
 
   it('deve utilizar o valor default para --force como false', () => {
     process.argv = ['node', 'auto-squash'];

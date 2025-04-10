@@ -1,6 +1,6 @@
 {
     "name": "@fean-developer/auto-squash",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "description": "CLI para squash automático de commits desde a base comum com main",
     "main": "dist/index.js",
     "bin": {

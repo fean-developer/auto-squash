@@ -12,87 +12,45 @@ export class AutoSquash {
   async run(): Promise<void> {
     try {
       const branchSummary = await this.git.branch();
-      if (!branchSummary || !branchSummary.current) {
+      const currentBranch = branchSummary.current;
+
+      if (!currentBranch) {
         throw new Error('Não foi possível identificar o branch atual.');
       }
 
-      const currentBranch = branchSummary.current;
-      let commits: string[] = [];
+      const totalCommitsRaw = await this.git.raw(['rev-list', '--count', 'HEAD']);
+      const totalCommits = parseInt(totalCommitsRaw?.trim(), 10);
 
-      const isSameBranch = this.options.baseBranch === currentBranch;
-      const shouldForce = this.options.force || isSameBranch;
+      const count = this.options.count ?? totalCommits;
+      
 
-      if (shouldForce) {
-        let rawOutput: string;
-        if (this.options.count) {
-          rawOutput = await this.git.raw(['rev-list', 'HEAD', '--max-count', String(this.options.count)]);
-        } else {
-          // Se a base for igual à branch atual e --count não for passado, pegamos tudo até o commit inicial
-          rawOutput = await this.git.raw(['rev-list', '--reverse', 'HEAD']);
-        }
-        commits = (rawOutput || '').trim().split('\n').filter(Boolean);
-
-        if (commits.length === 0) {
-          console.log('Nada a ser squashado: nenhum commit encontrado.');
-          return;
-        }
-      } else {
-        const mergeBaseHash = (await this.git.raw(['merge-base', this.options.baseBranch, currentBranch])).trim();
-        const rawOutput = await this.git.raw(['rev-list', `${mergeBaseHash}..HEAD`]);
-        commits = (rawOutput || '').trim().split('\n').filter(Boolean);
-      }
+      // Coleta os últimos N commits (mais antigos primeiro)
+      const rawOutput = await this.git.raw(['rev-list', '--reverse', 'HEAD', '-n', `${count}`]);
+      const commits = rawOutput.trim().split('\n').filter(Boolean);
 
       if (commits.length < 2) {
-        console.log('Nada a ser squashado: menos de 2 commits após a base.');
+        console.log('⚠️ Nada a squashar: menos de 2 commits.');
         return;
       }
 
-      const totalCommits = commits.length;
-      let commitsToSquash = commits;
+      console.log(`Fazendo squash de ${commits.length} commits:`);
+      commits.forEach((c, i) => console.log(`${i + 1}. ${c}`));
 
-      if (this.options.count && this.options.count < totalCommits) {
-        commitsToSquash = commits.slice(-this.options.count);
-        console.log(`Fazendo squash dos últimos ${commitsToSquash.length} commits.`);
-      } else {
-        console.log(`Fazendo squash de todos os ${totalCommits} commits.`);
-      }
-
-      if (!commitsToSquash.length || !commitsToSquash[0]) {
-        console.log('Não foi possível identificar o commit base para o squash.');
-        return;
-      }
-
-      let newBaseHash = '';
+      let baseHash: string;
 
       try {
-        newBaseHash = (await this.git.raw(['rev-parse', `${commitsToSquash[0]}^`])).trim();
-        console.log(`Novo commit criado com a mensagem: "${this.options.commitMessage}"`);
-        console.log('Total de commits squashados:', commitsToSquash.length);
-        console.log('Exibindo os commits squashados:');
-        
-        commitsToSquash.forEach(commit => console.log(commit));
-      } catch (err: any) {
-        const message = err.message || '';
-        if (message.includes('unknown revision') || message.includes('ambiguous argument')) {
-          console.warn(`⚠️  O commit ${commitsToSquash[0]} não possui pai. Este é o commit inicial.`);
-          newBaseHash = '';
-        } else {
-          throw err;
-        }
+        baseHash = await this.git.raw(['rev-parse', `${commits[0]}^`]).then(out => out.trim());
+      } catch {
+        console.warn('⚠️ Commit inicial detectado. Fazendo reset misto até ele.');
+        baseHash = commits[0];
       }
 
-      if (newBaseHash) {
-        await this.git.reset(['--soft', newBaseHash]);
-      } else {
-        await this.git.reset(['--mixed', commitsToSquash[0]]);
-        await this.git.add('.');
-      }
+      console.log(`🔧 Resetando com --soft até o commit base: ${baseHash}`);
+      await this.git.reset(['--soft', baseHash]);
 
       await this.git.commit(this.options.commitMessage);
-
+      console.log(`✅ Novo commit criado com a mensagem: "${this.options.commitMessage}"`);
       console.log('✅ Squash concluído com sucesso!');
-     
-
     } catch (error: any) {
       console.error('Erro ao tentar fazer squash:', error?.message);
       if (process.env.NODE_ENV !== 'test') {
