@@ -1,8 +1,5 @@
 import simpleGit, { SimpleGit } from 'simple-git';
 import { AutoSquashOptions } from './interfaces/auto-squash-options';
-import simpleGit, { SimpleGit } from 'simple-git';
-import { AutoSquashOptions } from './types';
-
 export class AutoSquash {
   private git: SimpleGit;
   private options: AutoSquashOptions;
@@ -30,9 +27,15 @@ export class AutoSquash {
         if (this.options.count) {
           rawOutput = await this.git.raw(['rev-list', 'HEAD', '--max-count', String(this.options.count)]);
         } else {
+          // Se a base for igual à branch atual e --count não for passado, pegamos tudo até o commit inicial
           rawOutput = await this.git.raw(['rev-list', '--reverse', 'HEAD']);
         }
         commits = (rawOutput || '').trim().split('\n').filter(Boolean);
+
+        if (commits.length === 0) {
+          console.log('Nada a ser squashado: nenhum commit encontrado.');
+          return;
+        }
       } else {
         const mergeBaseHash = (await this.git.raw(['merge-base', this.options.baseBranch, currentBranch])).trim();
         const rawOutput = await this.git.raw(['rev-list', `${mergeBaseHash}..HEAD`]);
@@ -63,21 +66,20 @@ export class AutoSquash {
 
       try {
         newBaseHash = (await this.git.raw(['rev-parse', `${commitsToSquash[0]}^`])).trim();
-        console.log(`🔧 Fazendo reset --soft até o commit base: ${newBaseHash}`);
+        console.log(`Novo commit criado com a mensagem: "${this.options.commitMessage}"`);
+        console.log('Total de commits squashados:', commitsToSquash.length);
+        console.log('Exibindo os commits squashados:');
+        
+        commitsToSquash.forEach(commit => console.log(commit));
       } catch (err: any) {
         const message = err.message || '';
         if (message.includes('unknown revision') || message.includes('ambiguous argument')) {
-          console.warn('⚠️  Commit inicial detectado. Fazendo reset misto até', commitsToSquash[0]);
+          console.warn(`⚠️  O commit ${commitsToSquash[0]} não possui pai. Este é o commit inicial.`);
           newBaseHash = '';
         } else {
           throw err;
         }
       }
-
-      console.log('Exibindo os commits squashados:');
-      commitsToSquash.forEach((commit, index) => {
-        console.log(`${index + 1}. ${commit}`);
-      });
 
       if (newBaseHash) {
         await this.git.reset(['--soft', newBaseHash]);
@@ -87,21 +89,9 @@ export class AutoSquash {
       }
 
       await this.git.commit(this.options.commitMessage);
-      console.log(`✅ Novo commit criado com a mensagem: "${this.options.commitMessage}"`);
-      console.log('✅ Squash concluído com sucesso!');
 
-      if (this.options.push) {
-        try {
-          await this.git.push('origin', currentBranch, ['--force']);
-          console.log('✅ Push forçado realizado com sucesso!');
-        } catch (err) {
-          console.warn('⚠️  Não foi possível fazer push. Verifique se seu Git está autenticado com o GitHub.');
-          console.warn('👉 Dica: use SSH ou configure um token de acesso pessoal (PAT).');
-        }
-      } else {
-        console.log('ℹ️  Para enviar suas alterações, execute:');
-        console.log(`   git push origin ${currentBranch} --force`);
-      }
+      console.log('✅ Squash concluído com sucesso!');
+     
 
     } catch (error: any) {
       console.error('Erro ao tentar fazer squash:', error?.message);
@@ -113,4 +103,3 @@ export class AutoSquash {
     }
   }
 }
-
