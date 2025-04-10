@@ -123,5 +123,6 @@ jobs:
           echo "🔁 Atualizando tag major: $MAJOR"
       
           # Verifica se a tag major já existe
+          
           git tag -f "$MAJOR" "$NEW_TAG"
           git push origin "$MAJOR" --force
