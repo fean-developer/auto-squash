@@ -89,7 +89,7 @@ jobs:
 
           # Incrementa a versão de acordo com o tipo de commit
           if [ "$BUMP" = "major" ]; then
-            MAJOR=v$((MAJOR + 1))
+            MAJOR=$((MAJOR + 1))
             MINOR=0
             PATCH=0
           elif [ "$BUMP" == "minor" ]; then
