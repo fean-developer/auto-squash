@@ -3,8 +3,6 @@ name: Build and Lint
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -32,13 +30,14 @@ jobs:
           npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
           npx eslint src --ext .ts
 
-      # Adicione testes aqui se quiser, exemplo:
-      # - name: ✅ Rodar testes
-      #   run: npm test
+      - name: ✅ Rodar testes
+        run: npm run test
+
+      - name: Rodar Coverage
+        run: npm run test:coverage
 
       - name: 📋 Verificar dist/
         run: ls -l dist
-
 
       - name: Getting organization name
         id: get_org_name
@@ -102,26 +101,26 @@ jobs:
 
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
-
+        
       - name: Publishing release tag
         env:
           NEW_TAG: ${{ steps.create_release_tag.outputs.NEW_TAG }}
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GH_TOKEN: ${{ secrets.USR_DEFAULT_TOKEN }}
         run: |
           echo "🔢 Criando tag: $NEW_TAG"
+      
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git tag "$NEW_TAG"
+      
           git push origin "$NEW_TAG"
-
-          echo "🔢 Criando release para a tag: $NEW_TAG"
+      
+          echo "🚀 Criando release para a tag: $NEW_TAG"
           gh release create "$NEW_TAG" --generate-notes --title "Release $NEW_TAG"
-
-          # Criando tag MAJOR (ex: v1 -> v1.0.0)
+      
+          # Criar ou atualizar a tag major (ex: v1)
           MAJOR=$(echo "$NEW_TAG" | cut -d. -f1)
-          echo "🔢 Atualizando tag major: $MAJOR"
-
-          if git rev-parse "refs/tags/$MAJOR" >/dev/null 2>&1; then
-            git tag -d "$MAJOR"  # Remove a tag localmente
-          fi
-
-          git tag "$MAJOR" "$NEW_TAG"
-          git push --tags -f
+          echo "🔁 Atualizando tag major: $MAJOR"
+      
+          git tag -f "$MAJOR" "$NEW_TAG"
+          git push origin "$MAJOR" --force
