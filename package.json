@@ -29,6 +29,10 @@
     ],
     "author": "Francisco Nascimento <d19sp.developer@gmail.com>",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fean-developer/auto-squash"
+    },
     "dependencies": {
         "commander": "^13.1.0",
         "simple-git": "^3.27.0"

@@ -28,6 +28,10 @@ npm install -g @fean-developer/auto-squash
 auto-squash -c <quantidade> -m "<mensagem do commit>"
 ```
 
+```bash
+auto-squash -b <base-branch> -c <quantidade> -m "<mensagem do commit>"
+```
+
 #### Parâmetros disponíveis:
 
 | Parâmetro           | Descrição                                                                 |
@@ -41,17 +45,12 @@ auto-squash -c <quantidade> -m "<mensagem do commit>"
 
 - Squash dos commits desde a branch `default` (base), base pode ser especificada:
  se algum merge for encontrado entre a branch base e a feature o squash não acontecera. por segurança!
-  ```bash
-  auto-squash -m "feat: compactando todos commits"
-  ```
+ 
 - Squash definindo a branch base
-
-  ```bash
-  auto-squash -b TESTE_A -m "feat: juntando 4 commits" --force
-  ```
 - Exemplos:
   ```bash
-    31fc7a4 (HEAD -> feature/MINHA_BRANCH) Criando um novo commit até minha base especificada
+    fean-pipeline git:(feature/MINHA_BRANCH) auto-squash -b TESTE_A  -m "Criando um novo commit até minha base especificada"
+    31fc7a4 (HEAD -> feature/MINHA_BRANCH) Validando parametros dos arquivos
     4d33f3e Validando parametros dos arquivos de configuração | arquivo HOM  quebrado
     00b977b Validando parametros dos arquivos de configuração | arquivo HOM  quebrado
     61cc73e Validando parametros dos arquivos de configuração | arquivo HOM  quebrado
@@ -92,10 +91,7 @@ auto-squash -c <quantidade> -m "<mensagem do commit>"
 
   ```
 
-- Squash dos últimos 4 commits, ignorando a base:
-  ```bash
-  auto-squash -c 4 -m "feat: juntando 4 commits" --force
-  ```
+- Squash dos últimos 5 commits, ignorando a base:
 - Exemplos:
 
   ```bash
